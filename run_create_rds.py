@@ -5,7 +5,6 @@ import time
 
 from env import env
 from run_common import AWSCli
-from run_common import check_template_availability
 from run_common import print_message
 from run_common import print_session
 
@@ -46,8 +45,6 @@ db_instance_id = env['rds']['DB_INSTANCE_ID']
 db_iops = env['rds']['IOPS']
 db_multi_az = env['rds']['MULTI_AZ']
 db_subnet_group_name = env['rds']['DB_SUBNET_NAME']
-engine = env['rds']['ENGINE']
-engine_version = env['rds']['ENGINE_VERSION']
 license_model = env['rds']['LICENSE_MODEL']
 logs_export_to_cloudwatch = json.dumps(['error', 'general', 'audit', 'slowquery'])
 master_user_name = env['rds']['USER_NAME']
@@ -62,8 +59,6 @@ cidr_subnet = aws_cli.cidr_subnet
 #
 ################################################################################
 print_session('create rds')
-
-check_template_availability()
 
 create_iam_for_rds()
 
@@ -100,17 +95,13 @@ monitoring_role_arn = aws_cli.get_role_arn('rds-monitoring-role')
 ################################################################################
 print_message('create rds')
 
-if engine not in ('aurora', 'aurora-mysql', 'aurora-postgresql'):
-    raise Exception()
-
 cmd = ['rds', 'create-db-cluster']
 cmd += ['--backup-retention-period', db_backup_retention_period]
 cmd += ['--db-cluster-identifier', env['rds']['DB_CLUSTER_ID']]
 cmd += ['--db-subnet-group-name', db_subnet_group_name]
-if engine != 'aurora-postgresql':
-    cmd += ['--enable-cloudwatch-logs-exports', logs_export_to_cloudwatch]
-cmd += ['--engine', engine]
-cmd += ['--engine-version', engine_version]
+cmd += ['--enable-cloudwatch-logs-exports', logs_export_to_cloudwatch]
+cmd += ['--engine', 'aurora-mysql']
+cmd += ['--engine-version', '5.7.mysql_aurora.2.04.5']
 cmd += ['--master-user-password', master_user_password]
 cmd += ['--master-username', master_user_name]
 cmd += ['--vpc-security-group-ids', security_group_id]
@@ -122,7 +113,7 @@ cmd = ['rds', 'create-db-instance']
 cmd += ['--db-cluster-identifier', env['rds']['DB_CLUSTER_ID']]
 cmd += ['--db-instance-class', db_instance_class]
 cmd += ['--db-instance-identifier', db_instance_id]
-cmd += ['--engine', engine]
+cmd += ['--engine', 'aurora-mysql']
 cmd += ['--iops', db_iops]
 cmd += ['--license-model', license_model]
 cmd += ['--monitoring-interval', monitoring_interval]
@@ -135,5 +126,5 @@ if db_multi_az == '--multi-az':
     ss = datetime.datetime.today().strftime('%Y%m%d')
     cmd += ['--db-instance-identifier', '%s-%s' % (db_instance_id, ss)]
     cmd += ['--db-instance-class', db_instance_class]
-    cmd += ['--engine', engine]
+    cmd += ['--engine', 'aurora-mysql']
     aws_cli.run(cmd)

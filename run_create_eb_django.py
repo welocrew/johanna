@@ -213,7 +213,7 @@ def run_create_eb_django(name, settings):
     file_list = list()
     file_list.append('.ebextensions')
     file_list.append('configuration')
-    file_list.append('provisioning.py')
+    file_list.append('provisioning_eb.py')
     file_list.append('requirements.txt')
 
     for ff in file_list:
@@ -373,7 +373,7 @@ def run_create_eb_django(name, settings):
     cmd += ['--cname-prefix', cname]
     cmd += ['--environment-name', eb_environment_name]
     cmd += ['--option-settings', option_settings]
-    cmd += ['--solution-stack-name', '64bit Amazon Linux 2018.03 v2.9.2 running Python 3.6']
+    cmd += ['--solution-stack-name', '64bit Amazon Linux 2018.03 v2.9.3 running Python 3.6']
     cmd += ['--tags', tag0, tag1]
     cmd += ['--version-label', eb_environment_name]
     aws_cli.run(cmd, cwd=template_path)
